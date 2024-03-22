@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script>
+
+            const getCookieValue = (name) => (
+                document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+            )
+
+            function loadHosts() {
+                var auth = getCookieValue("auth");
+                
+                $.ajax({
+                    url: "api/get/" + auth + "/hosts",
+                    success: function(result) {
+                        $("#hosts").empty();
+                        $.each(result["hosts"], function(i, item) {
+                            $("#hosts").append($("<option>", {
+                                value: item,
+                                text: item
+                            }));
+                        });
+                        updateStats();
+                    }
+                })
+            }
+
+            function authenticate(key) {
+                $.ajax({
+                    url: "api/auth/" + key,
+                    success: function(result){
+                        if (result["auth"]) {
+                            document.cookie = "auth=" + key;
+                            loadHosts();
+                            $("#password-screen").hide();
+                            $("#password-input").val("");
+                        } else {
+                            // show password input screen
+                            $("#password-screen").show();
+                        }
+                    }
+                });
+            }
+
+            function percentageToColor(value) {
+                if (value < 25) {
+                    return "#00EDB8"; // light green
+                } else if (value < 40) {
+                    return "#00CCA2"; // green
+                } else if (value < 60) {
+                    return "#218F79"; // dark green
+                } else if (value < 80) {
+                    return "#DB9D00"; // orange
+                } else if (value < 90) {
+                    return "#e17055"; // light red
+                } else {
+                    return "#d63031"; // dark red
+                }
+            }
+
+            function drawStat(module, current, symbol) {
+                var val = (current / getCookieValue("max" + module) * 100);
+                $("#" + module).height((10 + val * 0.9) + "%"); // adjusted for a minimum of 10% for text readability
+                $("#" + module).text(current + symbol);
+                $("#" + module).css("background-color", percentageToColor(val));
+            }
+
+            function updateStats() {
+                var host = $("#hosts option:selected").text();
+                var auth = getCookieValue("auth");
+            
+                if (host != getCookieValue("host")) {
+                    document.cookie = "host=" + host;
+
+                    $.ajax({
+                        url: "api/host/" + auth + "/" + host + "/max",
+                        success: function(result) {
+                            document.cookie = "maxcpu=" + result["max"]["cpu"];
+                            document.cookie = "maxmemory=" + result["max"]["memory"];
+                            document.cookie = "maxstorage=" + result["max"]["storage"];
+                            document.cookie = "maxtx=" + result["max"]["tx"];
+                            document.cookie = "maxrx=" + result["max"]["rx"];
+                        }
+                    })
+
+                }
+
+                $.ajax({
+                    url: "api/host/" + auth + "/" + host + "/stats",
+                    success: function(result){
+                        if (result["auth"] && !result["error"]) {
+                            document.title = host;
+                            drawStat("cpu", result["stats"]["cpu"], "%");
+                            drawStat("memory", result["stats"]["memory"], "gb");
+                            drawStat("storage", result["stats"]["storage"], "gb");
+                            drawStat("tx", result["stats"]["tx"], "mb/s");
+                            drawStat("rx", result["stats"]["rx"], "mb/s");
+                        } else {
+                            drawStat("cpu", 0, "%");
+                            drawStat("memory", 0, "gb");
+                            drawStat("storage", result["stats"]["storage"], "gb");
+                            drawStat("tx", 0, "mb/s");
+                            drawStat("rx", 0, "mb/s");
+                            console.log("error");
+                        }
+                    }
+                });
+
+                document.title = host;
+            }
+
+            $(document).ready(function(){
+
+                $("#password-input").on("input", function() {
+                    authenticate($(this).val()); 
+                })
+
+                $("#logout").on("click", function() {
+                    document.cookie = "auth=";
+                    $("#password-screen").show(); 
+                })
+
+                $("#hosts").on("change", function() {
+                    updateStats();
+                })
+
+                var interval = setInterval(updateStats, 1000);
+
+                if (getCookieValue("auth") == "empty") {
+                    loadHosts();
+                    $("#logout").hide();
+                    $("#password-screen").hide();
+                }
+
+            });
+
+            if (getCookieValue("auth") == "") {
+                document.cookie = "auth=empty";
+            }
+    
+            authenticate(getCookieValue("auth"));
+
+        </script>
+    </head>
+    <body>
+        
+        <div id="password-screen">
+            Enter Password:
+            <input type="text" id="password-input" name="password">
+        </div>
+
+        <div class="flex">
+
+            <div id="item-hosts" class="flex-item">
+                <select id="hosts" name="hosts">
+
+                </select>
+
+                <div id="logout">
+
+                </div>
+            </div>
+
+            <div id="item-stats" class="flex-item">
+
+                <div class="stat-item">
+                    CPU
+                    <div class="stat-container">
+                        <div id="cpu" class="host-stat">CPU</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    MEMORY
+                    <div class="stat-container">
+                        <div id="memory" class="host-stat">MEMORY</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    STORAGE
+                    <div class="stat-container">
+                        <div id="storage" class="host-stat">STORAGE</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    TX
+                    <div class="stat-container">
+                        <div id="tx" class="host-stat">TX</div>
+                    </div>
+                </div>
+
+                <div class="stat-item">
+                    RX
+                    <div class="stat-container">
+                        <div id="rx" class="host-stat">RX</div>
+                    </div>
+                </div>
+
+            </div>
+
+            
+    
+            <h1>This is a heading</h1>
+            <p>This is a paragraph.</p>
+        </div>
+
+    </body>
+</html> 

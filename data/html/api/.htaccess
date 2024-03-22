@@ -1,0 +1,8 @@
+RewriteEngine On
+
+
+RewriteRule ^auth/(.*)$ api.php?auth=$1 [NC,QSA]
+
+RewriteRule ^get/(.*)/(.*)$ api.php?auth=$1&get=$2 [NC,QSA]
+
+RewriteRule ^host/(.*)/(.*)/(.*)$ api.php?auth=$1&host=$2&stat=$3 [NC,QSA]
