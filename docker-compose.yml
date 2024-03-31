@@ -1,33 +1,35 @@
 version: "2"
 services:
-    core:
-        build: core
-        tty: true
-        volumes:
-            - "./data/core:/app"
-            - "/var/run/docker.sock:/var/run/docker.sock"
-    apache:
-        build: apache
-        ports: 
-            - "822:80"
-        volumes:
-            - ./data/html:/var/www/html/
-    db:
-        image: mysql:8
-        environment:
-            MYSQL_DATABASE: database
-            MYSQL_USER: user
-            MYSQL_PASSWORD: test
-            MYSQL_ROOT_PASSWORD: test
-        volumes:
-            - ./data/mysql:/var/lib/mysql
-    phpmyadmin:
-        image: phpmyadmin/phpmyadmin
-        links: 
-            - db:db
-        ports:
-            - 823:80
-        environment:
-            MYSQL_USER: user
-            MYSQL_PASSWORD: test
-            MYSQL_ROOT_PASSWORD: test
+  core:
+    env-file:
+      - cloudwatch.env
+    build: core
+    tty: true
+    volumes:
+      - "./data/core:/app"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  apache:
+    build: apache
+    ports:
+      - "822:80"
+    volumes:
+      - ./data/html:/var/www/html/
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db:db
+    ports:
+      - 823:80
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
