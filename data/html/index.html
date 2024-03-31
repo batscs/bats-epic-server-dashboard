@@ -63,6 +63,9 @@
             }
 
             function drawStat(module, current, symbol) {
+		if (module == "memory") {
+			current = Number(current / 1024 / 1024 / 1024).toFixed(2);
+		}
                 var val = (current / getCookieValue("max" + module) * 100);
                 $("#" + module).height((10 + val * 0.9) + "%"); // adjusted for a minimum of 10% for text readability
                 $("#" + module).text(current + symbol);
@@ -95,7 +98,7 @@
                         if (result["auth"] && !result["error"]) {
                             document.title = host;
                             drawStat("cpu", result["stats"]["cpu"], "%");
-                            drawStat("memory", result["stats"]["memory"], "gb");
+                            drawStat("memory", Number(result["stats"]["memory"]), "gb");
                             drawStat("storage", result["stats"]["storage"], "gb");
                             drawStat("tx", result["stats"]["tx"], "mb/s");
                             drawStat("rx", result["stats"]["rx"], "mb/s");

@@ -4,7 +4,8 @@ services:
         build: core
         tty: true
         volumes:
-            - ./data/core:/app
+            - "./data/core:/app"
+            - "/var/run/docker.sock:/var/run/docker.sock"
     apache:
         build: apache
         ports: 
