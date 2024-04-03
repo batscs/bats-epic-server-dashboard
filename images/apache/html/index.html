@@ -34,7 +34,15 @@
                     url: "api/auth/" + key,
                     success: function(result){
                         if (result["auth"]) {
-                            document.cookie = "auth=" + key;
+                            // "empty" == Dont Show Logout Icon at the Tops
+                            if (result["auth_required"] == "false") {
+                                $("#logout").hide();
+                                document.cookie = "auth=empty";
+                            } else {
+                                $("#logout").show();
+                                document.cookie = "auth=" + key;
+                            }
+
                             loadHosts();
                             $("#password-screen").hide();
                             $("#password-input").val("");

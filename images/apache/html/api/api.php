@@ -12,9 +12,10 @@ $response = [];
 
 if ($client->authenticate($_GET["auth"])) {
     $response["auth"] = true;
+    $response["auth_required"] = $client->requiresAuthentication();
 } else {
     $response["auth"] = false;
-    $response["key"] = $_GET["auth"];
+    $response["auth_required"] = $client->requiresAuthentication();
 }
 
 if ($response["auth"] == true) {

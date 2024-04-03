@@ -21,7 +21,11 @@ host_name = os.environ.get('CW_SERVER_NAME')
 # auth key, empty string if no auth
 auth_key = os.environ.get("CW_AUTH_KEY")
 
-# todo hier und in mysql container die env variablen verwenden
+# mysql connection
+mysql_host = os.environ.get("MYSQL_HOST")
+mysql_user = os.environ.get("MYSQL_USER")
+mysql_password = os.environ.get("MYSQL_PASSWORD")
+mysql_database = os.environ.get("MYSQL_DATABASE")
 
 # ------------------------------------------------------------------------------------------
 
@@ -30,12 +34,13 @@ def main():
 
     while not connected:
         try:
-            db = Client("db", "user", "test", "database")
+            db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
             connected = True
         except:
-            print("Error: Could not connect to Database")
+            print(f"Error: Could not connect to MySQL Database at {mysql_host}:3306")
             time.sleep(5)
         
+    print(f"Connected to MySQL Database at {mysql_host}:3306")
     device = Device()
 
     cpu_max = device.cpu_max()
@@ -79,7 +84,7 @@ def calculate_cpu_percent(status):
     return cpuPercent
 
 def collect_stats(container_name):
-    db = Client("db", "user", "test", "database")
+    db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
     db.identify(host_name)
     container = client.containers.get(container_name)
     for stats in container.stats(decode=None, stream=True):

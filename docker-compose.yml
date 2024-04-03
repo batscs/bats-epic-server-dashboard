@@ -15,6 +15,8 @@ services:
     user: "0"
     restart: unless-stopped
     build: images/apache
+    env_file:
+      - cloudwatch.env
     ports:
       - "822:80"
     #volumes:
@@ -22,11 +24,8 @@ services:
   db:
     restart: unless-stopped
     image: mysql:8
-    environment:
-      MYSQL_DATABASE: database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: test
-      MYSQL_ROOT_PASSWORD: test
+    env_file:
+      - cloudwatch.env
     volumes:
       - ./data/mysql:/var/lib/mysql
   phpmyadmin:
@@ -36,7 +35,5 @@ services:
       - db:db
     ports:
       - 823:80
-    environment:
-      MYSQL_USER: user
-      MYSQL_PASSWORD: test
-      MYSQL_ROOT_PASSWORD: test
+    env_file:
+      - cloudwatch.env

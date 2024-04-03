@@ -1,8 +1,8 @@
 <?php
-$servername = "db";
-$username = "user";
-$password = "test";
-$database = "database";
+$servername = $_ENV["MYSQL_HOST"];
+$username = $_ENV["MYSQL_USER"];
+$password = $_ENV["MYSQL_PASSWORD"];
+$database = $_ENV["MYSQL_DATABASE"];
 
 try {
     	$mysql = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
