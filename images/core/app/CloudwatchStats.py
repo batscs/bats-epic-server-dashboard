@@ -87,6 +87,10 @@ def collect_stats(container_name):
     db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
     db.identify(host_name)
     container = client.containers.get(container_name)
+
+    old_tx_b = 0
+    old_rx_b = 0
+
     for stats in container.stats(decode=None, stream=True):
         #print(f"Collecting stats for {container_name}")
         stats = json.loads(stats)
