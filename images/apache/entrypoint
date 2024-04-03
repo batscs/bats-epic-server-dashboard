@@ -1,0 +1,3 @@
+cp -r /raw/* /var/www/html/
+
+apache2-foreground

@@ -94,10 +94,17 @@ def collect_stats(container_name):
         # Memory Usage subtracted with inactive_files to mirror behavior of 'docker stats' and linux ram calculation, ignoring buffer/cache
         memory_b = stats["memory_stats"]["usage"] - stats["memory_stats"]["stats"]["inactive_file"]
         cpu = calculate_cpu_percent(stats)
-        tx_b = stats["networks"]["eth0"]["tx_bytes"]
-        rx_b = stats["networks"]["eth0"]["rx_bytes"]
+        
+        diff_tx_b = stats["networks"]["eth0"]["tx_bytes"] - old_tx_b
+        diff_rx_b = stats["networks"]["eth0"]["rx_bytes"] - old_rx_b
 
-        db.track_container(container_name, cpu, memory_b, tx_b, rx_b)
+        old_tx_b = stats["networks"]["eth0"]["tx_bytes"]
+        old_rx_b = stats["networks"]["eth0"]["rx_bytes"]
+
+        diff_tx_b = 0 if diff_tx_b >= old_tx_b else diff_tx_b
+        diff_rx_b = 0 if diff_rx_b >= old_rx_b else diff_rx_b
+
+        db.track_container(container_name, cpu, memory_b, diff_tx_b, diff_rx_b)
 
     print(f"Container {container_name} has been stopped.")
     container_list.remove(container_name)

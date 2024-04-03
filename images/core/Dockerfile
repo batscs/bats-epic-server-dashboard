@@ -15,8 +15,13 @@ RUN apt-get install -y python3-docker
 RUN apt-get install -y python3-psutil
 
 # Create directory for script
-RUN mkdir -p /app; 
+RUN mkdir -p /app
+RUN mkdir -p /app_package
 
-COPY app/ /app/
+# app_package to avoid volume mounting issues of /app
+COPY app/ /app_package/
+COPY entrypoint /
 
-CMD python3 /app/CloudwatchStats.py
+RUN chmod +x /entrypoint
+
+CMD /entrypoint

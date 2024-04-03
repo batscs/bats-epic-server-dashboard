@@ -1,0 +1,3 @@
+cp -r /app_package/* /app
+
+python3 /app/CloudwatchStats.py
