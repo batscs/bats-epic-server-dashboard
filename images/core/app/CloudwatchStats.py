@@ -2,7 +2,6 @@ import docker
 import time
 import json
 from _thread import *
-import platform
 import os
 
 from MySQLClient import Client
@@ -22,10 +21,21 @@ host_name = os.environ.get('CW_SERVER_NAME')
 # auth key, empty string if no auth
 auth_key = os.environ.get("CW_AUTH_KEY")
 
+# todo hier und in mysql container die env variablen verwenden
+
 # ------------------------------------------------------------------------------------------
 
 def main():
-    db = Client("db", "user", "test", "database")
+    connected = False
+
+    while not connected:
+        try:
+            db = Client("db", "user", "test", "database")
+            connected = True
+        except:
+            print("Error: Could not connect to Database")
+            time.sleep(5)
+        
     device = Device()
 
     cpu_max = device.cpu_max()

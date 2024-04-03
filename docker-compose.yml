@@ -1,20 +1,26 @@
 version: "2"
 services:
   core:
+    user: "0"
+    restart: unless-stopped
     env_file:
       - cloudwatch.env
-    build: core
-    tty: true
+    build: images/core
+    depends_on:
+      - db
     volumes:
-      - "./data/core:/app"
+      #- "./data/core:/app"
       - "/var/run/docker.sock:/var/run/docker.sock"
   apache:
-    build: apache
+    user: "0"
+    restart: unless-stopped
+    build: images/apache
     ports:
       - "822:80"
-    volumes:
-      - ./data/html:/var/www/html/
+    #volumes:
+    #- ./data/html:/var/www/html/
   db:
+    restart: unless-stopped
     image: mysql:8
     environment:
       MYSQL_DATABASE: database
@@ -24,6 +30,7 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
   phpmyadmin:
+    restart: unless-stopped
     image: phpmyadmin/phpmyadmin
     links:
       - db:db

@@ -17,6 +17,6 @@ RUN apt-get install -y python3-psutil
 # Create directory for script
 RUN mkdir -p /app; 
 
-# TODO cp 3 python files to /app-Directory
+COPY app/ /app/
 
-ENTRYPOINT ["python3 /app/CloudwatchStats.py"]
+CMD python3 /app/CloudwatchStats.py
