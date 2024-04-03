@@ -6,8 +6,7 @@ class Client:
             host=host,
             user=user,
             password=password,
-            database=database,
-            ssl_disabled=True
+            database=database
         )
 
         self.machine_id = -1
