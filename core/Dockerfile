@@ -17,5 +17,6 @@ RUN apt-get install -y python3-psutil
 # Create directory for script
 RUN mkdir -p /app; 
 
-# Create directory for cron script
-RUN mkdir -p /app/data
+# TODO cp 3 python files to /app-Directory
+
+ENTRYPOINT ["python3 /app/CloudwatchStats.py"]
