@@ -1,7 +1,7 @@
 version: "2"
 services:
   core:
-    env-file:
+    env_file:
       - cloudwatch.env
     build: core
     tty: true

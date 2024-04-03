@@ -1,4 +1,3 @@
-import platform
 import mysql.connector
 
 class Client:
@@ -27,7 +26,7 @@ class Client:
       result = cursor.fetchall()
       
       if not len(result) == 1:
-          cursor.execute("CREATE TABLE `database`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DOUBLE NULL , `MEMORY_MAX` BIGINT NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` INT NULL , `CPU_CORES` INT NULL , `STORAGE_USED` INT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+          cursor.execute("CREATE TABLE `database`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,2) NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
           self.client.commit()
 
       # -------------------------------- METRICS TABLE
@@ -35,7 +34,7 @@ class Client:
       result = cursor.fetchall()
 
       if len(result) == 0:
-        cursor.execute("CREATE TABLE `database`.`metrics` (`ID` BIGINT NOT NULL AUTO_INCREMENT , `TIMESTAMP` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `CONTAINER` VARCHAR(255) NOT NULL , `CPU` DOUBLE NOT NULL , `MEMORY` BIGINT NOT NULL , `TX` BIGINT NOT NULL , `RX` BIGINT NOT NULL , `HOST_ID` INT NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+        cursor.execute("CREATE TABLE `database`.`metrics` (`ID` BIGINT NOT NULL AUTO_INCREMENT , `TIMESTAMP` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `CONTAINER` VARCHAR(255) NOT NULL , `CPU` DECIMAL(10,3) NOT NULL , `MEMORY` DECIMAL(16,2) NOT NULL , `TX` BIGINT NOT NULL , `RX` BIGINT NOT NULL , `HOST_ID` INT NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
 
 
     def cleanup(self):
@@ -74,6 +73,7 @@ class Client:
 
     def setup_host(self, host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores):
         cursor = self.client.cursor()
+        print(f"setup host_name={host_name}")
         cursor.execute(f"SELECT ID FROM hosts WHERE HOST_NAME = '{host_name}'") 
         result = cursor.fetchall()
 

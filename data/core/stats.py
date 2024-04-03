@@ -6,6 +6,7 @@ import platform
 import os
 
 from MySQLClient import Client
+from DeviceManager import Device
 
 # ------------------------------------------------------------------------------------------
 
@@ -22,8 +23,19 @@ host_name = os.environ.get('CW_SERVER_NAME')
 
 def main():
     db = Client("db", "user", "test", "database")
+    device = Device()
 
-    db.setup_host(host_name, 600, 32, 1000, 7, 7, "M1", "OSX", 500, 6)
+    cpu_max = device.cpu_max()
+    memory_max = device.memory_max()
+    storage_max = device.storage_max()
+    tx_max = device.tx_max()
+    rx_max = device.rx_max()
+    cpu_name = device.cpu_name()
+    os_name = device.os_name()
+    uptime = device.uptime()
+    cpu_cores = device.cpu_cores()
+
+    db.setup_host(host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores)
 
     db.identify(host_name)
 
@@ -33,8 +45,8 @@ def main():
 
     while True:
         db.cleanup()
-        db.track_storage(300)
-        time.sleep(3)
+        db.track_storage(device.storage_used())
+        time.sleep(60)
 
 # ------------------------------------------------------------------------------------------
 

@@ -43,27 +43,41 @@ class Client {
 	    }
 
 	    return $result; 
-	    //return ["host01_dev", "host02_qa", "host03_prod"];
     }
 
     public function host_stats($host) {
-	    $stmt = $this->client->prepare("SELECT 0 as storage, ROUND(SUM(CPU), 2) as cpu, SUM(MEMORY) as memory, SUM(TX) as tx, SUM(RX) as rx FROM ( SELECT *, ROW_NUMBER() OVER(PARTITION BY CONTAINER ORDER BY TIMESTAMP DESC) rn FROM metrics WHERE HOST_ID = :id AND TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 5 SECOND)) a WHERE rn = 1;"); 
  	    $id = $this->hostIdByName($host);
+
+        // cpu, memory, tx, rx
+	    $stmt = $this->client->prepare("SELECT ROUND(SUM(CPU), 2) as cpu, SUM(MEMORY) as memory, SUM(TX) as tx, SUM(RX) as rx FROM ( SELECT *, ROW_NUMBER() OVER(PARTITION BY CONTAINER ORDER BY TIMESTAMP DESC) rn FROM metrics WHERE HOST_ID = :id AND TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 5 SECOND)) a WHERE rn = 1;"); 
 	    $stmt->bindParam("id", $id);
 	    $stmt->execute();
 	    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // storage
+        $stmt = $this->client->prepare("SELECT STORAGE_USED FROM hosts WHERE ID = :id");
+	    $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // combining
+        $data["storage"] = $result["STORAGE_USED"];
+        $data["host_name"] = $host;
+        $data["host_id"] = $id;
+
 	    return $data;   
     }
 
     public function host_stats_max($host) {
-        return [
-            "host" => $host,
-            "cpu" => 600,
-            "memory" => 32,
-            "storage" => 1000,
-            "tx" => 7,
-            "rx" => 7
-        ];
+
+        $id = $this->hostIdByName($host);
+
+        $stmt = $this->client->prepare("SELECT CPU_MAX as cpu, MEMORY_MAX as memory, STORAGE_MAX as storage, TX_MAX as tx, RX_MAX as rx FROM hosts WHERE ID = :id");
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $data;
     }
 
     public function test() {
