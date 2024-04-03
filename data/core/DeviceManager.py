@@ -16,7 +16,16 @@ class Device:
         return cpu_cores
 
     def uptime(self):
-        return 1337
+        uptime_seconds = None
+
+        # Open and read the /proc/uptime file
+        with open('/proc/uptime', 'r') as file:
+            # Read the first line in the file
+            uptime_line = file.readline().strip()
+            # Split the line to get the uptime in seconds
+            uptime_seconds = float(uptime_line.split()[0])
+
+        return uptime_seconds
 
     def os_name(self):
         result = None

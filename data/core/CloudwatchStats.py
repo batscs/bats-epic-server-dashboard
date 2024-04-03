@@ -19,6 +19,9 @@ container_list = set()
 # host_name, used as identifier of this cloudwatch instance
 host_name = os.environ.get('CW_SERVER_NAME')
 
+# auth key, empty string if no auth
+auth_key = os.environ.get("CW_AUTH_KEY")
+
 # ------------------------------------------------------------------------------------------
 
 def main():
@@ -36,6 +39,8 @@ def main():
     cpu_cores = device.cpu_cores()
 
     db.setup_host(host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores)
+
+    db.update_auth(auth_key)
 
     db.identify(host_name)
 

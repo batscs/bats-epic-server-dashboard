@@ -2,6 +2,8 @@ import mysql.connector
 
 class Client:
     def __init__(self, host, user, password, database):
+        self.database = database
+
         self.client = mysql.connector.connect(
             host=host,
             user=user,
@@ -20,12 +22,20 @@ class Client:
     def init(self):
       cursor = self.client.cursor()
 
+      # -------------------------------- AUTH    TABLE
+      cursor.execute("SHOW TABLES LIKE 'settings'")
+      result = cursor.fetchall()
+      
+      if not len(result) == 1:
+        cursor.execute(f"CREATE TABLE `{self.database}`.`settings` (`AUTH_REQUIRED` BOOLEAN NOT NULL , `AUTH_KEY` VARCHAR(255) NOT NULL , `VERSION` DECIMAL(10,1) NULL ) ENGINE = InnoDB;")
+        cursor.execute("INSERT INTO settings (AUTH_REQUIRED, AUTH_KEY) VALUES (False, '')")
+
       # -------------------------------- HOSTS   TABLE
       cursor.execute("SHOW TABLES LIKE 'hosts'")
       result = cursor.fetchall()
       
       if not len(result) == 1:
-          cursor.execute("CREATE TABLE `database`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,2) NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+          cursor.execute(f"CREATE TABLE `{self.database}`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,2) NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
           self.client.commit()
 
       # -------------------------------- METRICS TABLE
@@ -33,7 +43,7 @@ class Client:
       result = cursor.fetchall()
 
       if len(result) == 0:
-        cursor.execute("CREATE TABLE `database`.`metrics` (`ID` BIGINT NOT NULL AUTO_INCREMENT , `TIMESTAMP` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `CONTAINER` VARCHAR(255) NOT NULL , `CPU` DECIMAL(10,3) NOT NULL , `MEMORY` DECIMAL(16,2) NOT NULL , `TX` BIGINT NOT NULL , `RX` BIGINT NOT NULL , `HOST_ID` INT NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+        cursor.execute(f"CREATE TABLE `{self.database}`.`metrics` (`ID` BIGINT NOT NULL AUTO_INCREMENT , `TIMESTAMP` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `CONTAINER` VARCHAR(255) NOT NULL , `CPU` DECIMAL(10,3) NOT NULL , `MEMORY` DECIMAL(16,2) NOT NULL , `TX` BIGINT NOT NULL , `RX` BIGINT NOT NULL , `HOST_ID` INT NOT NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
 
 
     def cleanup(self):
@@ -72,7 +82,6 @@ class Client:
 
     def setup_host(self, host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores):
         cursor = self.client.cursor()
-        print(f"setup host_name={host_name}")
         cursor.execute(f"SELECT ID FROM hosts WHERE HOST_NAME = '{host_name}'") 
         result = cursor.fetchall()
 
@@ -81,3 +90,9 @@ class Client:
         else:
             cursor.execute(f"UPDATE hosts SET CPU_MAX = {cpu_max}, MEMORY_MAX = {memory_max}, STORAGE_MAX = {storage_max}, TX_MAX = {tx_max}, RX_MAX = {rx_max}, CPU_NAME = '{cpu_name}', OS_NAME = '{os_name}', UPTIME = {uptime}, CPU_CORES = {cpu_cores} WHERE HOST_NAME = '{host_name}'")
 
+    def update_auth(self, auth_key):
+        cursor = self.client.cursor()
+        if auth_key == "" or auth_key == None:
+            cursor.execute("UPDATE settings SET AUTH_REQUIRED=False")
+        else:
+            cursor.execute(f"UPDATE settings SET AUTH_REQUIRED=True, AUTH_KEY='{auth_key}'")

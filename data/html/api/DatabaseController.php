@@ -9,7 +9,10 @@ class Client {
     }
 
     public function requiresAuthentication() {
-        return true;
+        $stmt = $this->client->prepare("SELECT AUTH_REQUIRED FROM settings");
+        $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data["AUTH_REQUIRED"] == 0 ? False : True;
     }
 
     public function authenticate($key) {
@@ -17,8 +20,10 @@ class Client {
             return true;
         }
 
-        // Password Check
-        return $key == "111";
+        $stmt = $this->client->prepare("SELECT AUTH_KEY FROM settings");
+        $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data["AUTH_KEY"] == $key ? True : False;
     }
 
     public function hostIdByName($host) {
