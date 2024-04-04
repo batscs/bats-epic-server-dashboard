@@ -1,3 +1,7 @@
+echo "Entrypoint"
+
 cp -r /app_package/* /app
 
-python3 /app/CloudwatchStats.py
+python3 -m pip install speedtest-cli
+
+python3 -u /app/CloudwatchStats.py

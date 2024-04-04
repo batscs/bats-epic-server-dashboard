@@ -1,4 +1,5 @@
 import os
+import speedtest
 
 class Device:
 
@@ -109,7 +110,13 @@ class Device:
         return used_space_gb
     
     def tx_max(self):
-        return 7
+        st = speedtest.Speedtest()
+        st.get_best_server()
+        max_tx_bandwidth = st.upload()
+        return max_tx_bandwidth
     
     def rx_max(self):
-        return 9
+        st = speedtest.Speedtest()
+        st.get_best_server()
+        max_rx_bandwidth = st.download()
+        return max_rx_bandwidth

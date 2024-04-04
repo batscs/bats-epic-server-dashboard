@@ -14,6 +14,8 @@ RUN apt-get install -y python3-docker
 
 RUN apt-get install -y python3-psutil
 
+RUN apt install -y python3-pip
+
 # Create directory for script
 RUN mkdir -p /app
 RUN mkdir -p /app_package

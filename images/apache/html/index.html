@@ -70,13 +70,29 @@
                 }
             }
 
-            function drawStat(module, current, symbol) {
-		if (module == "memory") {
-			current = Number(current / 1024 / 1024 / 1024).toFixed(2);
-		}
+            function drawStat(module, current, unit) {
                 var val = (current / getCookieValue("max" + module) * 100);
                 $("#" + module).height((10 + val * 0.9) + "%"); // adjusted for a minimum of 10% for text readability
-                $("#" + module).text(current + symbol);
+                
+
+                if (module == "tx" || module == "rx") {
+                    if (current < 1024) {
+                        unit = "B/s";
+                    } else if (current < 1024 * 1024) {
+                        current = current / 1024; // Convert to KB/s
+                        unit = "KB/s";
+                    } else if (current < 1024 * 1024 * 1024) {
+                        current = current / (1024 * 1024); // Convert to MB/s
+                        unit = "MB/s";
+                    } else {
+                        current = current / (1024 * 1024 * 1024); // Convert to GB/s
+                        unit = "GB/s";
+                    }
+
+                    current = Math.round(current);
+                }
+
+                $("#" + module).text(current + unit);
                 $("#" + module).css("background-color", percentageToColor(val));
             }
 
@@ -84,7 +100,7 @@
                 var host = $("#hosts option:selected").text();
                 var auth = getCookieValue("auth");
             
-                if (host != getCookieValue("host")) {
+                if (host != getCookieValue("host") || getCookieValue("maxcpu") == "") {
                     document.cookie = "host=" + host;
 
                     $.ajax({

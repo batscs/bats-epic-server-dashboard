@@ -44,13 +44,21 @@ def main():
     device = Device()
 
     cpu_max = device.cpu_max()
+    print("Fetched CPU_MAX")
     memory_max = device.memory_max()
+    print("Fetched STORAGE_MAX")
     storage_max = device.storage_max()
+    print("Fetched TX_MAX")
     tx_max = device.tx_max()
+    print("Fetched RX_MAX")
     rx_max = device.rx_max()
+    print("Fetched CPU_NAME")
     cpu_name = device.cpu_name()
+    print("Fetched OS_NAME")
     os_name = device.os_name()
+    print("Fetched UPTIME")
     uptime = device.uptime()
+    print("Fetched CPU_CORES")
     cpu_cores = device.cpu_cores()
 
     db.setup_host(host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores)
@@ -58,6 +66,8 @@ def main():
     db.update_auth(auth_key)
 
     db.identify(host_name)
+
+    print("Starting to look for Containers")
 
     # This 'parent' Thread continuously searches for new containers and tracks them
     # in each their own new thread simultaneously
@@ -95,9 +105,11 @@ def collect_stats(container_name):
         #print(f"Collecting stats for {container_name}")
         stats = json.loads(stats)
 
+        cpu = calculate_cpu_percent(stats)
+
         # Memory Usage subtracted with inactive_files to mirror behavior of 'docker stats' and linux ram calculation, ignoring buffer/cache
         memory_b = stats["memory_stats"]["usage"] - stats["memory_stats"]["stats"]["inactive_file"]
-        cpu = calculate_cpu_percent(stats)
+        memory_gb = memory_b / (1024**3)
         
         diff_tx_b = stats["networks"]["eth0"]["tx_bytes"] - old_tx_b
         diff_rx_b = stats["networks"]["eth0"]["rx_bytes"] - old_rx_b
@@ -108,7 +120,8 @@ def collect_stats(container_name):
         diff_tx_b = 0 if diff_tx_b >= old_tx_b else diff_tx_b
         diff_rx_b = 0 if diff_rx_b >= old_rx_b else diff_rx_b
 
-        db.track_container(container_name, cpu, memory_b, diff_tx_b, diff_rx_b)
+
+        db.track_container(container_name, cpu, memory_gb, diff_tx_b, diff_rx_b)
 
     print(f"Container {container_name} has been stopped.")
     container_list.remove(container_name)
