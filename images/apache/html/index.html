@@ -122,8 +122,8 @@
                         if (result["auth"] && !result["error"]) {
                             document.title = host;
                             drawStat("cpu", result["stats"]["cpu"], "%");
-                            drawStat("memory", Number(result["stats"]["memory"]), "gb");
-                            drawStat("storage", result["stats"]["storage"], "gb");
+                            drawStat("memory", Number(result["stats"]["memory"]).toFixed(2), "gb");
+                            drawStat("storage", Number(result["stats"]["storage"]).toFixed(1), "gb");
                             drawStat("tx", result["stats"]["tx"], "mb/s");
                             drawStat("rx", result["stats"]["rx"], "mb/s");
                         } else {
