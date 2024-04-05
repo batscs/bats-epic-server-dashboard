@@ -56,23 +56,23 @@
 
             function percentageToColor(value) {
                 if (value < 25) {
-                    return "#00EDB8"; // light green
+                    return "#14ba60"; // light green
                 } else if (value < 40) {
-                    return "#00CCA2"; // green
+                    return "#138a4b"; // green
                 } else if (value < 60) {
-                    return "#218F79"; // dark green
+                    return "#F8B324"; // dark green
                 } else if (value < 80) {
                     return "#DB9D00"; // orange
                 } else if (value < 90) {
-                    return "#e17055"; // light red
+                    return "#EB442C"; // light red
                 } else {
-                    return "#d63031"; // dark red
+                    return "#BC2023"; // dark red
                 }
             }
 
             function drawStat(module, current, unit) {
                 var val = (current / getCookieValue("max" + module) * 100);
-                $("#" + module).height((10 + val * 0.9) + "%"); // adjusted for a minimum of 10% for text readability
+                $("#" + module).height((13 + val * 0.87) + "%"); // adjusted for a minimum of 13% for text readability
                 
 
                 if (module == "tx" || module == "rx") {
@@ -96,6 +96,21 @@
                 $("#" + module).css("background-color", percentageToColor(val));
             }
 
+            function formatUptime(seconds) {
+                var days = Math.floor(seconds / (3600 * 24));
+                var hours = Math.floor((seconds % (3600 * 24)) / 3600);
+                var minutes = Math.floor((seconds % 3600) / 60);
+                var remainingSeconds = seconds % 60;
+
+                var uptimeString = '';
+                if (days > 0) uptimeString += days + ' day' + (days === 1 ? '' : 's') + ', ';
+                if (hours > 0) uptimeString += hours + ' hour' + (hours === 1 ? '' : 's') + ', ';
+                if (minutes > 0) uptimeString += minutes + ' minute' + (minutes === 1 ? '' : 's') + ', ';
+                uptimeString += remainingSeconds + ' second' + (remainingSeconds === 1 ? '' : 's');
+
+                return uptimeString;
+            }
+
             function updateStats() {
                 var host = $("#hosts option:selected").text();
                 var auth = getCookieValue("auth");
@@ -112,9 +127,23 @@
                             document.cookie = "maxtx=" + result["max"]["tx"];
                             document.cookie = "maxrx=" + result["max"]["rx"];
                         }
-                    })
+                    });
 
                 }
+
+                $.ajax({
+                    url: "api/host/" + auth + "/" + host + "/about",
+                    success: function(result) {
+                        $("#os_name").text(result["about"]["os_name"]);
+                        $("#cpu_name").text(result["about"]["cpu_name"] + " (" + result["about"]["cpu_cores"] + " Cores)");
+                        $("#os_uptime").text(formatUptime(result["about"]["uptime"]));
+                        $("#os_time").text(result["about"]["os_time"] + " " + result["about"]["os_timezone"]);
+                        $("#os_name").text(result["about"]["os_name"]);
+                        $("#max_memory").text(result["about"]["memory_max"]);
+                        $("#max_storage").text(result["about"]["storage_max"]);
+                        $("#containers").text(result["about"]["os_containers"]);
+                    }
+                });
 
                 $.ajax({
                     url: "api/host/" + auth + "/" + host + "/stats",
@@ -216,14 +245,14 @@
                 </div>
 
                 <div class="stat-item">
-                    TX
+                    NET/TX
                     <div class="stat-container">
                         <div id="tx" class="host-stat">TX</div>
                     </div>
                 </div>
 
                 <div class="stat-item">
-                    RX
+                    NET/RX
                     <div class="stat-container">
                         <div id="rx" class="host-stat">RX</div>
                     </div>
@@ -231,10 +260,18 @@
 
             </div>
 
-            
-    
-            <h1>This is a heading</h1>
-            <p>This is a paragraph.</p>
+            <div id="seperator"></div>
+
+            <div id="about">
+                <p> Operating System: <a id="os_name"> Ubuntu 22.04.4 LTS </a> </p>
+                <p> CPU: <a id="cpu_name"> Intel(R) Core(TM) i5-9500T CPU @ 2.20GHz (6 Cores) </a> </p>
+                <p> Memory: <a id="max_ram"> 31.15 GB </a></p>
+                <p> Storage: <a id="max_storage"> 912.81 GB </a></p>
+                <p> Docker: <a id="containers"> 4 Container </a></p>
+                <p> Server time: <a id="os_time"> 2024-04-05 04:20:07 UTC </a></p>
+                <p> Uptime: <a id="os_uptime"> 5 days </a> </p>
+            </div>
+
         </div>
 
     </body>

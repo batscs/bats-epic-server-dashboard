@@ -19,6 +19,8 @@ body {
     display: flex;
     align-items: center;
     flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .flex-item {
@@ -56,8 +58,8 @@ body {
 
 .stat-container {
     margin-top: 10px;
-    width: 140px;
-    height: 280px;
+    width: 120px;
+    height: 250px;
     background-color: #404040;
     position: relative;
 
@@ -75,7 +77,7 @@ body {
 
     width: 100%;
 
-    filter: grayscale(40%);
+    filter: grayscale(20%);
 
     transition: 1s;
 
@@ -134,6 +136,33 @@ option {
 
 }
 
+#about {
+    width: 90%;
+    padding-bottom: 30px;
+}
+
+#about h1 {
+    font-size: 30px;
+}
+
+#about p {
+    margin-bottom: 5px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#about a {
+    padding-left: 5px;
+    font-weight: normal;
+}
+
+#seperator {
+    width: 90%;
+    height: 3px;
+    background-color: var(--highlight-bg);
+    margin: 20px 0;
+}
+
 @media (max-width: 825px) {
 
     select {
@@ -152,7 +181,7 @@ option {
     }
 
     #item-stats {
-        width: 80%;
+        max-width: 80%;
 
         flex-direction: row;
         flex-wrap: wrap;
@@ -167,12 +196,34 @@ option {
     }
 
     .stat-container {
-        height: 180px;
-        width: 95px;
+        height: 160px;
+        width: 85px;
+    }
+
+    .stat-item {
+        font-size: 16px;
+    }
+
+    .host-stat {
+        font-size: 16px;
     }
 
     #logout {
-        width: 35px;
-        height: 50px;
+        margin-top: 15px;
+        width: 25px;
+        background-size: cover;
+        height: 25px;
+    }
+
+    #about p {
+        font-size: 12px;
+    }
+
+    #password-screen {
+        font-size: 20px;
+    }
+
+    #password-input {
+        font-size: 20px;
     }
   }

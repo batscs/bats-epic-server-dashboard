@@ -30,6 +30,8 @@ if ($response["auth"] == true) {
             $response["stats"] = $client->host_stats($_GET["host"]);
         } else if ($_GET["stat"] == "max") {
             $response["max"] = $client->host_stats_max($_GET["host"]);
+        } else if ($_GET["stat"] == "about") {
+            $response["about"] = $client->host_about($_GET["host"]);
         }
     }
    
@@ -38,6 +40,3 @@ if ($response["auth"] == true) {
 
 $json = json_encode($response);
 echo $json;
-
-// TODO: getHosts()
-// TODO: getCPU("host")

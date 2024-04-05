@@ -69,6 +69,15 @@ class Client:
         cursor.execute(f"UPDATE hosts SET STORAGE_USED = {used_storage} WHERE ID = {self.machine_id}")
         self.client.commit()
 
+    def track_uptime(self, uptime):
+        if self.machine_id == -1:
+            print("ERROR: Instance has not been identified. Exiting")
+            exit(5)
+
+        cursor = self.client.cursor()
+        cursor.execute(f"UPDATE hosts SET UPTIME = {uptime} WHERE ID = {self.machine_id}")
+        self.client.commit()
+
     def identify(self, host_name):
         cursor = self.client.cursor()
         # TODO hier machine_name modularisieren

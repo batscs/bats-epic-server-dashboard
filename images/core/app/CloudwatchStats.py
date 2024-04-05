@@ -74,10 +74,18 @@ def main():
     # in each their own new thread simultaneously
     start_new_thread(find_containers, ())
 
+    counter = 0
     while True:
-        db.cleanup()
+        
+        time.sleep(1)
+        counter = counter + 1
+
         db.track_storage(device.storage_used())
-        time.sleep(60)
+        db.track_uptime(device.uptime())
+        
+        if (counter >= 60):
+            db.cleanup()
+            counter = 0
 
 # ------------------------------------------------------------------------------------------
 
