@@ -35,7 +35,7 @@ class Client:
       result = cursor.fetchall()
       
       if not len(result) == 1:
-          cursor.execute(f"CREATE TABLE `{self.database}`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,2) NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+          cursor.execute(f"CREATE TABLE `{self.database}`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,2) NULL , `TX_MAX` BIGINT NULL , `RX_MAX` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `OS_TIME` TIMESTAMP NULL , `OS_TIMEZONE` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
           self.client.commit()
 
       # -------------------------------- METRICS TABLE
@@ -77,6 +77,16 @@ class Client:
         cursor = self.client.cursor()
         cursor.execute(f"UPDATE hosts SET UPTIME = {uptime} WHERE ID = {self.machine_id}")
         self.client.commit()
+
+    def track_time(self, time, timezone):
+        if self.machine_id == -1:
+            print("ERROR: Instance has not been identified. Exiting")
+            exit(6)
+
+        cursor = self.client.cursor()
+        cursor.execute(f"UPDATE hosts SET OS_TIME = '{time}', OS_TIMEZONE = '{timezone}' WHERE ID = {self.machine_id}")
+        self.client.commit()
+
 
     def identify(self, host_name):
         cursor = self.client.cursor()

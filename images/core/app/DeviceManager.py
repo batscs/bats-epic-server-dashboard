@@ -1,5 +1,6 @@
 import os
 import speedtest
+import datetime
 
 class Device:
 
@@ -120,3 +121,9 @@ class Device:
         st.get_best_server()
         max_rx_bandwidth = st.download()
         return max_rx_bandwidth
+    
+    def local_time(self):
+        return datetime.datetime.now()
+    
+    def local_timezone(self):
+        return datetime.datetime.now().astimezone().tzinfo

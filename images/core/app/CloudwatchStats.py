@@ -82,6 +82,7 @@ def main():
 
         db.track_storage(device.storage_used())
         db.track_uptime(device.uptime())
+        db.track_time(device.local_time(), device.local_timezone())
         
         if (counter >= 60):
             db.cleanup()

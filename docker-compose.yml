@@ -26,8 +26,6 @@ services:
     image: mysql:8
     env_file:
       - cloudwatch.env
-    volumes:
-      - ./data/mysql:/var/lib/mysql
   phpmyadmin:
     restart: unless-stopped
     image: phpmyadmin/phpmyadmin

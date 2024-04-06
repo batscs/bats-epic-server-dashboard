@@ -53,7 +53,7 @@ class Client {
     public function host_about($host) {
         $id = $this->hostIdByName($host);
 
-        $stmt = $this->client->prepare("SELECT OS_NAME as os_name, CPU_NAME as cpu_name, CPU_CORES as cpu_cores, UPTIME as uptime, STORAGE_MAX as storage_max, MEMORY_MAX as memory_max, CURRENT_TIMESTAMP as os_time, @@system_time_zone as os_timezone FROM hosts WHERE ID = :id");
+        $stmt = $this->client->prepare("SELECT OS_NAME as os_name, CPU_NAME as cpu_name, CPU_CORES as cpu_cores, UPTIME as uptime, STORAGE_MAX as storage_max, MEMORY_MAX as memory_max, OS_TIME as os_time, OS_TIMEZONE as os_timezone FROM hosts WHERE ID = :id");
         $stmt->bindParam("id", $id);
         $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
