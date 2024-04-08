@@ -71,25 +71,16 @@ class Client {
 
     public function host_stats($host) {
  	    $id = $this->hostIdByName($host);
-
-        // cpu, memory, tx, rx
-	    $stmt = $this->client->prepare("SELECT ROUND(SUM(CPU), 2) as cpu, SUM(MEMORY) as memory, SUM(TX) as tx, SUM(RX) as rx FROM ( SELECT *, ROW_NUMBER() OVER(PARTITION BY CONTAINER ORDER BY TIMESTAMP DESC) rn FROM metrics WHERE HOST_ID = :id AND TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 5 SECOND)) a WHERE rn = 1;"); 
-	    $stmt->bindParam("id", $id);
-	    $stmt->execute();
-	    $data = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // storage
-        $stmt = $this->client->prepare("SELECT STORAGE_USED FROM hosts WHERE ID = :id");
+        $stmt = $this->client->prepare("SELECT STORAGE_USED as storage, CPU_NOW as cpu, MEMORY_NOW as memory, TX_NOW as tx, RX_NOW as rx FROM hosts WHERE ID = :id");
 	    $stmt->bindParam("id", $id);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // combining
-        $data["storage"] = $result["STORAGE_USED"];
-        $data["host_name"] = $host;
-        $data["host_id"] = $id;
+        $result["host_name"] = $host;
+        $result["host_id"] = $id;
 
-	    return $data;   
+	    return $result;   
     }
 
     public function host_stats_max($host) {

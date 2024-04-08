@@ -1,6 +1,7 @@
 import os
 import speedtest
 import datetime
+import time
 
 class Device:
 
@@ -60,7 +61,7 @@ class Device:
         return result if result else "Unknown"
 
     def cpu_max(self):
-        return 100 * self.cpu_cores()
+        return 100 * 6 # self.cpu_cores()
     
     def memory_max(self):
         total_memory_kb = 0
@@ -111,16 +112,62 @@ class Device:
         return used_space_gb
     
     def tx_max(self):
-        st = speedtest.Speedtest()
-        st.get_best_server()
-        max_tx_bandwidth = st.upload()
-        return max_tx_bandwidth
+        try:
+            st = speedtest.Speedtest()
+            st.get_best_server()
+            max_tx_bandwidth = st.upload()
+            return max_tx_bandwidth
+        except:
+            return 10_000_000
     
     def rx_max(self):
-        st = speedtest.Speedtest()
-        st.get_best_server()
-        max_rx_bandwidth = st.download()
-        return max_rx_bandwidth
+        try:
+            st = speedtest.Speedtest()
+            st.get_best_server()
+            max_rx_bandwidth = st.download()
+            return max_rx_bandwidth
+        except:
+            return 50_000_000
+        
+    def rx_now(self):
+        return 5
+    
+    def tx_now(self):
+        return 4
+    
+    def memory_now(self):
+        return 3
+
+    def cpu_usage_stream(self):
+        # Initial measurement
+        prev_idle_time = 0
+        prev_total_time = 0
+
+        while True:
+            # Read CPU times
+            with open('/proc/stat', 'r') as file:
+                lines = file.readlines()
+
+            cpu_times = [int(time) for time in lines[0].strip().split()[1:]]
+            idle_time = cpu_times[3]  # idle time
+
+            # Total CPU time
+            total_time = sum(cpu_times)
+
+            # Calculate the difference
+            idle_time_delta = idle_time - prev_idle_time
+            total_time_delta = total_time - prev_total_time
+
+            # Calculate CPU usage percentage
+            cpu_usage = 100.0 - ((idle_time_delta / total_time_delta) * 100.0)
+
+            # Update previous values for next iteration
+            prev_idle_time = idle_time
+            prev_total_time = total_time
+
+            yield cpu_usage * 6
+
+            time.sleep(1)  # Sleep for 1 second before checking again
     
     def local_time(self):
         return datetime.datetime.now()

@@ -43,8 +43,18 @@ def main():
     print(f"Connected to MySQL Database at {mysql_host}:3306")
     device = Device()
 
+    os_name = device.os_name()
+    print(f"Fetched OS_NAME={os_name}")
+    uptime = device.uptime()
+    print(f"Fetched UPTIME={uptime}")
+
+    cpu_name = device.cpu_name()
+    print(f"Fetched CPU_NAME={cpu_name}")
+    cpu_cores = device.cpu_cores()
+    print(f"Fetched CPU_CORES={cpu_cores}")
     cpu_max = device.cpu_max()
     print(f"Fetched CPU_MAX={cpu_max}")
+
     memory_max = device.memory_max()
     print(f"Fetched MEMORY_MAX={memory_max}")
     storage_max = device.storage_max()
@@ -53,14 +63,6 @@ def main():
     print(f"Fetched TX_MAX={tx_max}")
     rx_max = device.rx_max()
     print(f"Fetched RX_MAX={rx_max}")
-    cpu_name = device.cpu_name()
-    print(f"Fetched CPU_NAME={cpu_name}")
-    os_name = device.os_name()
-    print(f"Fetched OS_NAME={os_name}")
-    uptime = device.uptime()
-    print(f"Fetched UPTIME={uptime}")
-    cpu_cores = device.cpu_cores()
-    print(f"Fetched CPU_CORES={cpu_name}")
 
     db.setup_host(host_name, cpu_max, memory_max, storage_max, tx_max, rx_max, cpu_name, os_name, uptime, cpu_cores)
 
@@ -72,7 +74,10 @@ def main():
 
     # This 'parent' Thread continuously searches for new containers and tracks them
     # in each their own new thread simultaneously
-    start_new_thread(find_containers, ())
+    start_new_thread(watch_containers, ())
+
+    # CPU Usage is yielded as a stream, tracking it in a new thread
+    start_new_thread(watch_cpu_usage, ())
 
     counter = 0
     while True:
@@ -80,9 +85,12 @@ def main():
         time.sleep(1)
         counter = counter + 1
 
+        # TODO Falls TX/RX als non-stream möglich ist, diese 5 Methoden zu einer
         db.track_storage(device.storage_used())
         db.track_uptime(device.uptime())
         db.track_time(device.local_time(), device.local_timezone())
+        db.track_netio(device.tx_now(), device.rx_now())
+        db.track_memory(device.memory_now())
         
         if (counter >= 60):
             db.cleanup()
@@ -136,7 +144,17 @@ def collect_stats(container_name):
     print(f"Container {container_name} has been stopped.")
     container_list.remove(container_name)
 
-def find_containers():
+# ----------------- core function -------------------
+
+def watch_cpu_usage():
+    db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
+    db.identify(host_name)
+
+    device = Device()
+    for cpu_now in device.cpu_usage_stream():
+        db.track_cpu(cpu_now)
+
+def watch_containers():
     while True:
         for container in client.containers.list():
             about = container.stats(decode=None, stream=False)
