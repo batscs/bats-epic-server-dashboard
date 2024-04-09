@@ -68,11 +68,21 @@ class Client {
         return $data;
     }
 
+    public function host_chart($host) {
+        $id = $this->hostIdByName($host);
+        
+        $stmt = $this->client->prepare("SELECT * FROM metrics WHERE HOST_ID = :id");
+	    $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result;
+    }
 
     public function host_stats($host) {
  	    $id = $this->hostIdByName($host);
         
-        $stmt = $this->client->prepare("SELECT STORAGE_USED as storage, CPU_NOW as cpu, MEMORY_NOW as memory, TX_NOW as tx, RX_NOW as rx FROM hosts WHERE ID = :id");
+        $stmt = $this->client->prepare("SELECT STORAGE_USED as storage, ROUND(CPU_NOW) as cpu, MEMORY_NOW as memory, TX_NOW as tx, RX_NOW as rx FROM hosts WHERE ID = :id");
 	    $stmt->bindParam("id", $id);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);

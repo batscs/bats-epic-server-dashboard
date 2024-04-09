@@ -32,6 +32,8 @@ if ($response["auth"] == true) {
             $response["max"] = $client->host_stats_max($_GET["host"]);
         } else if ($_GET["stat"] == "about") {
             $response["about"] = $client->host_about($_GET["host"]);
+        } else if ($_GET["stat"] == "chart") {
+            $response["chart"] = $client->host_chart($_GET["host"]);
         }
     }
    
