@@ -150,6 +150,9 @@ def watch_cpu_usage():
     db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
     db.identify(host_name)
 
+    # wait for database creation
+    time.sleep(3)
+
     device = Device()
     for cpu_now in device.cpu_usage_stream():
         db.track_cpu(cpu_now)
