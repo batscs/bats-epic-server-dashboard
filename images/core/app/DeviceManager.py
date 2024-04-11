@@ -136,7 +136,24 @@ class Device:
         return 4
     
     def memory_now(self):
-        return 3
+        meminfo_file = '/proc/meminfo'
+        with open(meminfo_file, 'r') as f:
+            meminfo = f.readlines()
+
+            # Parsing /proc/meminfo
+            meminfo_dict = {}
+            for line in meminfo:
+                key, value = line.split(':', 1)
+                meminfo_dict[key.strip()] = int(value.split()[0])  # Extracting numeric value
+
+            # Extracting relevant memory information and converting to GB
+            total_memory_gb = meminfo_dict['MemTotal'] / (1024 ** 2)  # Convert from KB to GB
+            free_memory_gb = (meminfo_dict['MemAvailable']) / (1024 ** 2)
+            used_memory_gb = total_memory_gb - free_memory_gb  # Used memory in GB
+
+            return used_memory_gb
+        
+        return 0
 
     def cpu_usage_stream(self):
         # Initial measurement
