@@ -68,17 +68,6 @@ class Client {
         return $data;
     }
 
-    public function host_chart($host) {
-        $id = $this->hostIdByName($host);
-        
-        $stmt = $this->client->prepare("SELECT * FROM metrics WHERE HOST_ID = :id");
-	    $stmt->bindParam("id", $id);
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $result;
-    }
-
     public function host_stats($host) {
  	    $id = $this->hostIdByName($host);
         
@@ -89,6 +78,14 @@ class Client {
 
         $result["host_name"] = $host;
         $result["host_id"] = $id;
+
+        // RX/TX Not working from host table currently, using sum from containers
+        $stmt = $this->client->prepare("SELECT SUM(TX) as tx, SUM(RX) as rx FROM ( SELECT *, ROW_NUMBER() OVER(PARTITION BY CONTAINER ORDER BY TIMESTAMP DESC) rn FROM metrics WHERE HOST_ID = :id AND TIMESTAMP >= DATE_SUB(NOW(), INTERVAL 5 SECOND)) a WHERE rn = 1;");
+        $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result["tx"] = $data["tx"];
+        $result["rx"] = $data["rx"];
 
 	    return $result;   
     }
@@ -103,6 +100,25 @@ class Client {
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $data;
+    }
+
+    public function container_chart($host) {
+        $id = $this->hostIdByName($host);
+        
+        $stmt = $this->client->prepare("SELECT * FROM metrics WHERE HOST_ID = :id");
+	    $stmt->bindParam("id", $id);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result;
+    }
+
+    public function container_stats($host) {
+
+    }
+
+    public function container_start_chart($host) {
+
     }
 
     public function test() {

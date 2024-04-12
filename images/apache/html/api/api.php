@@ -33,7 +33,7 @@ if ($response["auth"] == true) {
         } else if ($_GET["stat"] == "about") {
             $response["about"] = $client->host_about($_GET["host"]);
         } else if ($_GET["stat"] == "chart") {
-            $response["chart"] = $client->host_chart($_GET["host"]);
+            $response["chart"] = $client->container_chart($_GET["host"]);
         }
     }
    
