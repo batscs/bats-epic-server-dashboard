@@ -89,8 +89,9 @@ def main():
         db.track_storage(device.storage_used())
         db.track_uptime(device.uptime())
         db.track_time(device.local_time(), device.local_timezone())
-        db.track_netio(device.tx_now(), device.rx_now())
+        db.track_netio(device.tx_now(), device.rx_now()) # not working
         db.track_memory(device.memory_now())
+        db.track_cpu_temp(device.cpu_temp())
         
         if (counter >= 60):
             db.cleanup()

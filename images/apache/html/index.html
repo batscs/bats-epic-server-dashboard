@@ -136,6 +136,7 @@
                     success: function(result) {
                         $("#os_name").text(result["about"]["os_name"]);
                         $("#cpu_name").text(result["about"]["cpu_name"] + " (" + result["about"]["cpu_cores"] + " Cores)");
+                        $("#cpu_temp").text(result["about"]["cpu_temp"]);
                         $("#os_uptime").text(formatUptime(result["about"]["uptime"]));
                         $("#os_time").text(result["about"]["os_time"] + " " + result["about"]["os_timezone"]);
                         $("#os_name").text(result["about"]["os_name"]);
@@ -275,6 +276,7 @@
             <div id="about">
                 <p> Operating System: <a id="os_name"> Ubuntu 22.04.4 LTS </a> </p>
                 <p> CPU: <a id="cpu_name"> Intel(R) Core(TM) i5-9500T CPU @ 2.20GHz (6 Cores) </a> </p>
+                <p> CPU: <a id="cpu_temp"> Unknown </a>
                 <p> Memory: <a id="memory_max"> 31.15 GB </a></p>
                 <p> Storage: <a id="storage_max"> 912.81 GB </a></p>
                 <p> Docker: <a id="containers"> 4 Container </a></p>

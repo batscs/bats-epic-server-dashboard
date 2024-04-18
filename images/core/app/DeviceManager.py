@@ -2,6 +2,7 @@ import os
 import speedtest
 import datetime
 import time
+import subprocess
 
 class Device:
 
@@ -62,6 +63,25 @@ class Device:
 
     def cpu_max(self):
         return 100 * 6 # self.cpu_cores()
+    
+    def cpu_temp(self):
+        # Execute the 'sensors' command to get temperature information
+        result = subprocess.run(['sensors'], capture_output=True, text=True)
+
+        # Check if the command executed successfully
+        if result.returncode == 0:
+            # Split the output by lines
+            output_lines = result.stdout.split('\n')
+
+            # Search for lines containing CPU temperature information
+            for line in output_lines:
+                if "Core 0" in line:
+                    # Extract temperature value from the line
+                    cpu_temp = line.split("+")[1].split()[0]
+                    return cpu_temp
+
+        # Return None if temperature couldn't be retrieved
+        return "Unknown"
     
     def memory_max(self):
         total_memory_kb = 0
@@ -130,10 +150,10 @@ class Device:
             return 50_000_000
         
     def rx_now(self):
-        return 5
+        return -1
     
     def tx_now(self):
-        return 4
+        return -1
     
     def memory_now(self):
         meminfo_file = '/proc/meminfo'
@@ -153,7 +173,7 @@ class Device:
 
             return used_memory_gb
         
-        return 0
+        return -1
 
     def cpu_usage_stream(self):
         # Initial measurement
