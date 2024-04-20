@@ -32,19 +32,31 @@ class Device:
         return uptime_seconds
 
     def os_name(self):
-        result = None
+        with open('/proc/version', 'r') as file:
+            version_info = file.readline().strip()
 
-        # Open and read the /etc/os-release file
-        with open('/etc/os-release', 'r') as file:
-            # Read each line in the file
-            for line in file:
-                # Split the line by '=' and check if it starts with 'PRETTY_NAME'
-                if line.startswith('PRETTY_NAME='):
-                    # Extract the pretty OS name by removing quotes and leading/trailing whitespace
-                    result = line.split('=')[1].strip().strip('"')
-                    break  # No need to continue once we've found the pretty OS name
-
-        return result if result else "Unknown"
+        # Extracting kernel version
+        kernel_version = " ".join(version_info.split()[:3])
+        return kernel_version
+    
+    def cpu_power_stream(self):
+        file_path = '/sys/class/powercap/intel-rapl:0/energy_uj'
+        try:
+            with open(file_path, 'r') as file:
+                prev_energy_uj = float(file.read().strip())
+            while True:
+                time.sleep(1)
+                with open(file_path, 'r') as file:
+                    curr_energy_uj = float(file.read().strip())
+                energy_diff_uj = curr_energy_uj - prev_energy_uj
+                prev_energy_uj = curr_energy_uj
+                yield round(energy_diff_uj / 1000000, 2)
+        except FileNotFoundError:
+            print("File not found. Make sure the path is correct.")
+            yield 0
+        except Exception as e:
+            print("An error occurred:", e)
+            yield 0
 
     def cpu_name(self):
         result = None

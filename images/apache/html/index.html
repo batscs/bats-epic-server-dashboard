@@ -137,12 +137,13 @@
                         $("#os_name").text(result["about"]["os_name"]);
                         $("#cpu_name").text(result["about"]["cpu_name"] + " (" + result["about"]["cpu_cores"] + " Cores)");
                         $("#cpu_temp").text(result["about"]["cpu_temp"]);
+                        $("#cpu_power").text(result["about"]["cpu_power"] + " Watt");
                         $("#os_uptime").text(formatUptime(result["about"]["uptime"]));
                         $("#os_time").text(result["about"]["os_time"] + " " + result["about"]["os_timezone"]);
                         $("#os_name").text(result["about"]["os_name"]);
-                        $("#memory_max").text(result["about"]["memory_max"]);
-                        $("#storage_max").text(result["about"]["storage_max"]);
-                        $("#containers").text(result["about"]["os_containers"]);
+                        $("#memory_max").text(Number(result["about"]["memory_max"]).toFixed(2) + " GB");
+                        $("#storage_max").text(Number(result["about"]["storage_max"]).toFixed(2) + " GB");
+                        $("#containers").text(result["about"]["os_containers"] + " Container");
                     }
                 });
 
@@ -276,9 +277,10 @@
             <div id="about">
                 <p> Operating System: <a id="os_name"> Ubuntu 22.04.4 LTS </a> </p>
                 <p> CPU: <a id="cpu_name"> Intel(R) Core(TM) i5-9500T CPU @ 2.20GHz (6 Cores) </a> </p>
-                <p> CPU: <a id="cpu_temp"> Unknown </a>
-                <p> Memory: <a id="memory_max"> 31.15 GB </a></p>
-                <p> Storage: <a id="storage_max"> 912.81 GB </a></p>
+                <p> CPU Temp: <a id="cpu_temp"> Unknown </a></p>
+                <p> CPU Power: <a id="cpu_power"> Unknown </a></p>
+                <p> Memory: <a id="memory_max"> 31.15 </a></p>
+                <p> Storage: <a id="storage_max"> 912.85 </a></p>
                 <p> Docker: <a id="containers"> 4 Container </a></p>
                 <p> Server time: <a id="os_time"> 2024-04-05 04:20:07 UTC </a></p>
                 <p> Uptime: <a id="os_uptime"> 5 days </a> </p>

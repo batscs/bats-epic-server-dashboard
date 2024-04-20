@@ -35,7 +35,7 @@ class Client:
       result = cursor.fetchall()
       
       if not len(result) == 1:
-          cursor.execute(f"CREATE TABLE `{self.database}`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,3) NULL , `CPU_NOW` DECIMAL(10,3) NULL , `CPU_TEMP` VARCHAR(255) NULL , `MEMORY_MAX` DECIMAL(10,3) NULL , `MEMORY_NOW` DECIMAL(10,3) NULL , `TX_MAX` BIGINT NULL , `TX_NOW` BIGINT NULL , `RX_MAX` BIGINT NULL , `RX_NOW` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `OS_TIME` TIMESTAMP NULL , `OS_TIMEZONE` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
+          cursor.execute(f"CREATE TABLE `{self.database}`.`hosts` (`ID` INT NOT NULL AUTO_INCREMENT , `HOST_NAME` VARCHAR(255) NULL , `CPU_MAX` DECIMAL(10,3) NULL , `CPU_NOW` DECIMAL(10,3) NULL , `CPU_TEMP` VARCHAR(255) NULL ,  `CPU_POWER` DECIMAL(10,2) NULL , `MEMORY_MAX` DECIMAL(10,3) NULL , `MEMORY_NOW` DECIMAL(10,3) NULL , `TX_MAX` BIGINT NULL , `TX_NOW` BIGINT NULL , `RX_MAX` BIGINT NULL , `RX_NOW` BIGINT NULL , `CPU_NAME` VARCHAR(255) NULL , `OS_NAME` VARCHAR(255) NULL , `OS_TIME` TIMESTAMP NULL , `OS_TIMEZONE` VARCHAR(255) NULL , `UPTIME` BIGINT NULL , `STORAGE_MAX` DECIMAL(10,2) NULL , `CPU_CORES` INT NULL , `STORAGE_USED` DECIMAL(10,2) NULL , PRIMARY KEY (`ID`)) ENGINE = InnoDB;")
           self.client.commit()
 
       # -------------------------------- METRICS TABLE
@@ -121,6 +121,15 @@ class Client:
 
         cursor = self.client.cursor()
         cursor.execute(f"UPDATE hosts SET CPU_TEMP = '{temp}' WHERE ID = {self.machine_id}")
+        self.client.commit()
+
+    def track_cpu_power(self, power):
+        if self.machine_id == -1:
+            print("ERROR: Instance has not been identified. Exiting from track_memory")
+            exit(10)
+
+        cursor = self.client.cursor()
+        cursor.execute(f"UPDATE hosts SET CPU_POWER = {power} WHERE ID = {self.machine_id}")
         self.client.commit()
 
     def identify(self, host_name):

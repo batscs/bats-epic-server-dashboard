@@ -79,6 +79,8 @@ def main():
     # CPU Usage is yielded as a stream, tracking it in a new thread
     start_new_thread(watch_cpu_usage, ())
 
+    start_new_thread(watch_cpu_power, ())
+
     counter = 0
     while True:
         
@@ -157,6 +159,17 @@ def watch_cpu_usage():
     device = Device()
     for cpu_now in device.cpu_usage_stream():
         db.track_cpu(cpu_now)
+
+def watch_cpu_power():
+     # wait for database creation
+    time.sleep(3)
+    
+    db = Client(mysql_host, mysql_user, mysql_password, mysql_database)
+    db.identify(host_name)
+
+    device = Device()
+    for cpu_power in device.cpu_power_stream():
+        db.track_cpu_power(cpu_power)
 
 def watch_containers():
     while True:
