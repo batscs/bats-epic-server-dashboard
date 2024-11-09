@@ -3,6 +3,8 @@
 
 Cloudwatch is a application deployed in docker to monitor your linux host machine stats and the containers running on it.
 
+[Live demo](https://status.bats.li)
+
 ![website](https://i.gyazo.com/9ce20fdad9722992dbfdf303fbc55957.png)
 
 ## Installation
